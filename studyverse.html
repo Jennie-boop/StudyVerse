@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>StudyVerse — Everything a student needs, in one place</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f0f4ff;
+  --surface:#ffffff;
+  --surface2:#f8faff;
+  --border:#e2e8f0;
+  --border-strong:#c7d5ed;
+  --text:#1a1f36;
+  --text2:#4a5568;
+  --text3:#8a96a8;
+  --accent:#3b82f6;
+  --accent-bg:#eff6ff;
+  --accent-text:#1d4ed8;
+  --green:#16a34a;
+  --green-bg:#f0fdf4;
+  --amber:#b45309;
+  --amber-bg:#fffbeb;
+  --purple:#7c3aed;
+  --purple-bg:#f5f3ff;
+  --red:#dc2626;
+  --radius:10px;
+  --sidebar:220px;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:15px}
+
+/* Layout */
+.app{display:flex;min-height:100vh}
+.sidebar{width:var(--sidebar);background:var(--surface);border-right:1px solid var(--border);position:fixed;top:0;left:0;height:100vh;overflow-y:auto;display:flex;flex-direction:column;z-index:100}
+.main{margin-left:var(--sidebar);flex:1;padding:2rem;max-width:960px}
+
+/* Sidebar */
+.logo{padding:1.25rem 1.25rem 1rem;border-bottom:1px solid var(--border)}
+.logo-text{font-size:18px;font-weight:700;color:var(--text)}
+.logo-text span{color:var(--accent)}
+.logo-tag{font-size:11px;color:var(--text3);margin-top:2px}
+.nav{padding:0.75rem 0;flex:1}
+.nav-section{font-size:10px;font-weight:600;color:var(--text3);letter-spacing:0.08em;text-transform:uppercase;padding:0.75rem 1.25rem 0.35rem}
+.nav-item{display:flex;align-items:center;gap:10px;padding:8px 1.25rem;cursor:pointer;font-size:13.5px;color:var(--text2);border-left:3px solid transparent;transition:all 0.15s}
+.nav-item:hover{background:var(--accent-bg);color:var(--accent)}
+.nav-item.active{background:var(--accent-bg);color:var(--accent-text);font-weight:600;border-left-color:var(--accent)}
+.nav-item .icon{font-size:17px;width:20px;text-align:center}
+.streak-chip{margin:auto 1.25rem 1.25rem;background:linear-gradient(135deg,#fbbf24,#f59e0b);border-radius:10px;padding:0.75rem 1rem;color:#78350f}
+.streak-chip .num{font-size:26px;font-weight:700}
+.streak-chip .lbl{font-size:12px;margin-top:2px;opacity:0.85}
+
+/* Panels */
+.panel{display:none}
+.panel.active{display:block}
+.page-header{margin-bottom:1.5rem}
+.page-title{font-size:22px;font-weight:700;margin-bottom:4px}
+.page-sub{font-size:14px;color:var(--text3)}
+
+/* Cards */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.25rem;margin-bottom:1rem}
+.card-title{font-size:13px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:1rem}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1rem}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:0.75rem;margin-bottom:1rem}
+
+/* Metrics */
+.metric{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.25rem}
+.metric-label{font-size:12px;color:var(--text3);font-weight:500;margin-bottom:6px}
+.metric-val{font-size:26px;font-weight:700;line-height:1}
+.metric-sub{font-size:12px;color:var(--text3);margin-top:5px}
+
+/* Progress */
+.progress-bar{height:7px;background:var(--bg);border-radius:99px;overflow:hidden}
+.progress-fill{height:100%;border-radius:99px;background:var(--accent);transition:width 0.3s}
+
+/* Badges */
+.badge{display:inline-block;font-size:11px;font-weight:600;padding:3px 9px;border-radius:99px}
+.badge-blue{background:var(--accent-bg);color:var(--accent-text)}
+.badge-green{background:var(--green-bg);color:var(--green)}
+.badge-amber{background:var(--amber-bg);color:var(--amber)}
+.badge-purple{background:var(--purple-bg);color:var(--purple)}
+
+/* Quote */
+.quote{background:var(--accent-bg);border-left:3px solid var(--accent);border-radius:0 10px 10px 0;padding:0.9rem 1rem;font-size:14px;color:var(--accent-text);font-style:italic;margin-bottom:1.5rem}
+
+/* Schedule */
+.schedule-item{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);font-size:14px}
+.schedule-item:last-child{border-bottom:none}
+.dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.stime{color:var(--text3);font-size:12px;margin-left:auto;font-weight:500}
+.s-sub{font-size:12px;color:var(--text3)}
+
+/* Todos */
+.todo-item{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);font-size:14px}
+.todo-item:last-child{border-bottom:none}
+.todo-item input[type=checkbox]{accent-color:var(--accent);width:16px;height:16px;cursor:pointer;flex-shrink:0}
+.todo-label{flex:1}
+.todo-label.done{text-decoration:line-through;color:var(--text3)}
+
+/* Add row */
+.add-row{display:flex;gap:8px;margin-bottom:1rem}
+.add-row input{flex:1;padding:9px 12px;border:1px solid var(--border);border-radius:var(--radius);font-size:14px;background:var(--surface);color:var(--text);outline:none}
+.add-row input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,130,246,0.1)}
+.add-row input.sm{flex:none;width:110px}
+.btn{padding:9px 18px;border-radius:var(--radius);border:none;font-size:14px;font-weight:600;cursor:pointer;transition:all 0.15s}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-primary:hover{background:var(--accent-text)}
+.btn-ghost{background:var(--surface);border:1px solid var(--border);color:var(--text2)}
+.btn-ghost:hover{border-color:var(--border-strong);background:var(--surface2)}
+.btn-sm{padding:6px 14px;font-size:13px}
+
+/* Notes */
+.note-card{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:1rem;cursor:pointer;transition:border-color 0.15s}
+.note-card:hover{border-color:var(--accent)}
+.note-card h4{font-size:14px;font-weight:600;margin-bottom:4px}
+.note-card p{font-size:12px;color:var(--text3);line-height:1.5}
+.note-card .note-foot{display:flex;align-items:center;justify-content:space-between;margin-top:8px}
+.note-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1rem}
+
+/* Pomodoro */
+.pomo-wrap{max-width:320px;margin:0 auto;text-align:center}
+.mode-tabs{display:flex;gap:6px;justify-content:center;margin-bottom:1.5rem}
+.mode-tab{padding:6px 16px;border-radius:99px;border:1.5px solid var(--border);font-size:13px;font-weight:500;cursor:pointer;background:transparent;color:var(--text2);transition:all 0.15s}
+.mode-tab.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.pomo-ring-wrap{position:relative;width:180px;height:180px;margin:0 auto 1.5rem}
+.pomo-ring-wrap svg{width:100%;height:100%}
+.pomo-center-text{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center}
+.pomo-time{font-size:36px;font-weight:700;line-height:1;color:var(--text)}
+.pomo-mode-label{font-size:12px;color:var(--text3);margin-top:4px}
+.pomo-btns{display:flex;gap:10px;justify-content:center;margin-bottom:1.25rem}
+.session-count{font-size:13px;color:var(--text3);margin-bottom:1.5rem}
+.session-count strong{color:var(--text);font-weight:700}
+
+/* Exams */
+.exam-item{display:flex;align-items:center;gap:14px;padding:10px 0;border-bottom:1px solid var(--border)}
+.exam-item:last-child{border-bottom:none}
+.exam-countdown{text-align:center;background:var(--accent-bg);border-radius:10px;padding:6px 10px;min-width:52px}
+.exam-countdown .num{font-size:20px;font-weight:700;color:var(--accent-text);line-height:1}
+.exam-countdown .lbl{font-size:10px;color:var(--text3);font-weight:500}
+.exam-info h4{font-size:14px;font-weight:600}
+.exam-info p{font-size:12px;color:var(--text3)}
+.exam-priority{margin-left:auto}
+
+/* Goals */
+.goal-item{margin-bottom:1rem}
+.goal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.goal-name{font-size:14px;font-weight:500}
+.goal-pct{font-size:13px;font-weight:700;color:var(--accent)}
+
+/* Flashcards */
+.flashcard{perspective:600px;width:100%;max-width:420px;height:200px;margin:0 auto 1.5rem;cursor:pointer}
+.flashcard-inner{position:relative;width:100%;height:100%;transition:transform 0.5s;transform-style:preserve-3d}
+.flashcard.flipped .flashcard-inner{transform:rotateY(180deg)}
+.fc-front,.fc-back{position:absolute;width:100%;height:100%;backface-visibility:hidden;border-radius:14px;display:flex;align-items:center;justify-content:center;padding:1.5rem;text-align:center;border:2px solid var(--border)}
+.fc-front{background:var(--surface);font-size:18px;font-weight:600}
+.fc-back{background:var(--accent-bg);transform:rotateY(180deg);font-size:15px;color:var(--accent-text)}
+.fc-hint{font-size:12px;color:var(--text3);text-align:center;margin-bottom:1rem}
+.fc-nav{display:flex;gap:10px;justify-content:center;margin-bottom:1.5rem}
+.fc-counter{font-size:13px;color:var(--text3);text-align:center;margin-bottom:0.75rem}
+
+/* Quiz */
+.quiz-question{font-size:17px;font-weight:600;margin-bottom:1.25rem;line-height:1.4}
+.quiz-options{display:flex;flex-direction:column;gap:8px;margin-bottom:1.25rem}
+.quiz-opt{padding:10px 14px;border:1.5px solid var(--border);border-radius:var(--radius);cursor:pointer;font-size:14px;transition:all 0.15s;background:var(--surface)}
+.quiz-opt:hover{border-color:var(--accent);background:var(--accent-bg)}
+.quiz-opt.correct{border-color:var(--green);background:var(--green-bg);color:var(--green);font-weight:600}
+.quiz-opt.wrong{border-color:var(--red);background:#fef2f2;color:var(--red)}
+.quiz-result{font-size:14px;padding:10px 14px;border-radius:var(--radius);margin-bottom:1rem;font-weight:500}
+.quiz-result.correct{background:var(--green-bg);color:var(--green)}
+.quiz-result.wrong{background:#fef2f2;color:var(--red)}
+
+/* Progress dashboard */
+.stat-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
+.stat-row:last-child{border-bottom:none}
+.stat-row .label{font-size:14px;flex:1}
+.stat-row .bar{flex:2}
+.stat-row .val{font-size:13px;font-weight:600;min-width:36px;text-align:right;color:var(--accent)}
+.week-chart{display:flex;align-items:flex-end;gap:6px;height:100px;margin-top:0.5rem}
+.bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
+.bar-col .bar-fill{width:100%;border-radius:4px 4px 0 0;background:var(--accent);min-height:4px;transition:height 0.3s}
+.bar-col .bar-lbl{font-size:11px;color:var(--text3)}
+
+/* Rewards */
+.level-banner{background:linear-gradient(135deg,var(--purple-bg),#ede9fe);border:1px solid #c4b5fd;border-radius:14px;padding:1.25rem;margin-bottom:1rem;display:flex;align-items:center;gap:14px}
+.level-icon{width:52px;height:52px;background:#7c3aed;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;color:#fff;flex-shrink:0}
+.level-info h3{font-size:17px;font-weight:700;color:var(--purple)}
+.level-info p{font-size:13px;color:var(--text3)}
+.xp-bar{height:10px;background:var(--bg);border-radius:99px;overflow:hidden;margin:8px 0}
+.xp-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--purple),#a78bfa)}
+.achievement-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
+.achievement-item:last-child{border-bottom:none}
+.ach-icon{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.ach-info h4{font-size:14px;font-weight:600}
+.ach-info p{font-size:12px;color:var(--text3)}
+.ach-xp{margin-left:auto;font-size:13px;font-weight:700;color:var(--purple)}
+.streak-dots{display:flex;gap:6px;justify-content:center;margin:0.75rem 0}
+.streak-dot{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600}
+.streak-dot.done{background:#fbbf24;color:#78350f}
+.streak-dot.today{background:var(--accent);color:#fff}
+.streak-dot.empty{background:var(--bg);border:2px dashed var(--border);color:var(--text3)}
+
+/* Scrollable content */
+.scroll-area{max-height:340px;overflow-y:auto}
+.scroll-area::-webkit-scrollbar{width:4px}
+.scroll-area::-webkit-scrollbar-thumb{background:var(--border-strong);border-radius:99px}
+
+/* Dark mode toggle */
+.dark-toggle{margin:auto 1.25rem 0.75rem;display:flex;align-items:center;justify-content:space-between;font-size:13px;color:var(--text3);padding-top:0.75rem;border-top:1px solid var(--border)}
+.toggle-switch{position:relative;width:36px;height:20px;cursor:pointer}
+.toggle-switch input{opacity:0;width:0;height:0}
+.toggle-track{position:absolute;inset:0;background:var(--border-strong);border-radius:99px;transition:background 0.2s}
+.toggle-switch input:checked+.toggle-track{background:var(--accent)}
+.toggle-thumb{position:absolute;top:3px;left:3px;width:14px;height:14px;border-radius:50%;background:#fff;transition:transform 0.2s}
+.toggle-switch input:checked~.toggle-thumb{transform:translateX(16px)}
+
+/* Dark mode */
+body.dark{--bg:#0f1117;--surface:#1a1d27;--surface2:#22263a;--border:#2d3148;--border-strong:#3d4268;--text:#e8eaf0;--text2:#a0a8c0;--text3:#5a6480;--accent-bg:#1e2540;--accent-text:#93c5fd;--green-bg:#052e16;--amber-bg:#1c1204;--purple-bg:#1e1040}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="logo">
+      <div class="logo-text">Study<span>Verse</span></div>
+      <div class="logo-tag">Everything a student needs</div>
+    </div>
+    <nav class="nav">
+      <div class="nav-section">Main</div>
+      <div class="nav-item active" onclick="show('dashboard',this)"><span class="icon">🏠</span> Dashboard</div>
+      <div class="nav-item" onclick="show('planner',this)"><span class="icon">📚</span> Study planner</div>
+      <div class="nav-item" onclick="show('focus',this)"><span class="icon">⏰</span> Focus zone</div>
+      <div class="nav-section">Learn</div>
+      <div class="nav-item" onclick="show('notes',this)"><span class="icon">📝</span> Smart notes</div>
+      <div class="nav-item" onclick="show('flashcards',this)"><span class="icon">🃏</span> Flashcards</div>
+      <div class="nav-item" onclick="show('quiz',this)"><span class="icon">🧠</span> Quiz center</div>
+      <div class="nav-section">Track</div>
+      <div class="nav-item" onclick="show('exams',this)"><span class="icon">📅</span> Exam planner</div>
+      <div class="nav-item" onclick="show('goals',this)"><span class="icon">🎯</span> Goals</div>
+      <div class="nav-item" onclick="show('progress',this)"><span class="icon">📈</span> Progress</div>
+      <div class="nav-item" onclick="show('rewards',this)"><span class="icon">🏆</span> Rewards</div>
+    </nav>
+    <div class="streak-chip">
+      <div class="num" id="sidebar-streak">🔥 7</div>
+      <div class="lbl">day study streak</div>
+    </div>
+    <div class="dark-toggle">
+      <span>Dark mode</span>
+      <label class="toggle-switch">
+        <input type="checkbox" id="dark-toggle" onchange="toggleDark()"/>
+        <div class="toggle-track"></div>
+        <div class="toggle-thumb"></div>
+      </label>
+    </div>
+  </div>
+
+  <!-- Main content -->
+  <div class="main">
+
+    <!-- Dashboard -->
+    <div class="panel active" id="panel-dashboard">
+      <div class="page-header">
+        <div class="page-title">Good morning! 👋</div>
+        <div class="page-sub">Here's your study overview for today</div>
+      </div>
+      <div class="quote">"Success is the sum of small efforts, repeated day in and day out." — Robert Collier</div>
+      <div class="grid4">
+        <div class="metric"><div class="metric-label">Study streak</div><div class="metric-val" style="color:#d97706">🔥 7</div><div class="metric-sub">days in a row</div></div>
+        <div class="metric"><div class="metric-label">Today's goal</div><div class="metric-val">3 hrs</div><div class="metric-sub">1.5 hrs done</div></div>
+        <div class="metric"><div class="metric-label">Next exam</div><div class="metric-val" style="font-size:18px;color:var(--accent)">Physics</div><div class="metric-sub">in 5 days</div></div>
+        <div class="metric"><div class="metric-label">XP earned</div><div class="metric-val" style="color:var(--purple)">1,240</div><div class="metric-sub">Level 4 — Scholar</div></div>
+      </div>
+      <div class="grid2">
+        <div class="card">
+          <div class="card-title">Today's schedule</div>
+          <div class="schedule-item"><div class="dot" style="background:#3b82f6"></div><div><div>Mathematics</div><div class="s-sub">Chapter 5 — Quadratics</div></div><span class="stime">9:00 AM</span></div>
+          <div class="schedule-item"><div class="dot" style="background:#16a34a"></div><div><div>Biology</div><div class="s-sub">Photosynthesis</div></div><span class="stime">11:00 AM</span></div>
+          <div class="schedule-item"><div class="dot" style="background:#b45309"></div><div><div>History</div><div class="s-sub">World War 2</div></div><span class="stime">2:00 PM</span></div>
+          <div class="schedule-item"><div class="dot" style="background:#7c3aed"></div><div><div>English</div><div class="s-sub">Essay writing</div></div><span class="stime">4:00 PM</span></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Today's progress</div>
+          <div style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px"><span>Mathematics</span><span style="color:var(--text3)">80%</span></div><div class="progress-bar"><div class="progress-fill" style="width:80%"></div></div></div>
+          <div style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px"><span>Biology</span><span style="color:var(--text3)">45%</span></div><div class="progress-bar"><div class="progress-fill" style="width:45%;background:#16a34a"></div></div></div>
+          <div style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px"><span>History</span><span style="color:var(--text3)">20%</span></div><div class="progress-bar"><div class="progress-fill" style="width:20%;background:#b45309"></div></div></div>
+          <div><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px"><span>English</span><span style="color:var(--text3)">0%</span></div><div class="progress-bar"><div class="progress-fill" style="width:0%"></div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Study Planner -->
+    <div class="panel" id="panel-planner">
+      <div class="page-header"><div class="page-title">📚 Study planner</div><div class="page-sub">Organise your tasks, homework, and weekly schedule</div></div>
+      <div class="add-row">
+        <input type="text" id="task-input" placeholder="Add a task or homework..." />
+        <select id="task-subject" style="padding:9px 10px;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;background:var(--surface);color:var(--text);outline:none">
+          <option value="General">General</option>
+          <option value="Maths">Maths</option>
+          <option value="Science">Science</option>
+          <option value="History">History</option>
+          <option value="English">English</option>
+        </select>
+        <button class="btn btn-primary" onclick="addTask()">Add task</button>
+      </div>
+      <div class="card">
+        <div class="card-title">Tasks &amp; homework</div>
+        <div class="scroll-area" id="task-list">
+          <div class="todo-item"><input type="checkbox" onchange="toggleDone(this)"><span class="todo-label">Complete Algebra chapter 5</span><span class="badge badge-blue" style="margin-left:auto">Maths</span></div>
+          <div class="todo-item"><input type="checkbox" onchange="toggleDone(this)"><span class="todo-label">Read pages 40–60 Biology</span><span class="badge badge-green" style="margin-left:auto">Science</span></div>
+          <div class="todo-item"><input type="checkbox" checked onchange="toggleDone(this)"><span class="todo-label done">History notes revision</span><span class="badge badge-amber" style="margin-left:auto">History</span></div>
+          <div class="todo-item"><input type="checkbox" onchange="toggleDone(this)"><span class="todo-label">English essay draft</span><span class="badge badge-purple" style="margin-left:auto">English</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Weekly study hours</div>
+        <div class="week-chart">
+          <div class="bar-col"><div class="bar-fill" style="height:60px"></div><div class="bar-lbl">Mon<br/>3h</div></div>
+          <div class="bar-col"><div class="bar-fill" style="height:40px;background:#16a34a"></div><div class="bar-lbl">Tue<br/>2h</div></div>
+          <div class="bar-col"><div class="bar-fill" style="height:80px"></div><div class="bar-lbl">Wed<br/>4h</div></div>
+          <div class="bar-col"><div class="bar-fill" style="height:30px;background:#fbbf24"></div><div class="bar-lbl">Thu<br/>1.5h</div></div>
+          <div class="bar-col"><div class="bar-fill" style="height:0px;background:var(--border)"></div><div class="bar-lbl">Fri<br/>—</div></div>
+          <div class="bar-col"><div class="bar-fill" style="height:0px;background:var(--border)"></div><div class="bar-lbl">Sat<br/>—</div></div>
+          <div class="bar-col"><div class="bar-fill" style="height:0px;background:var(--border)"></div><div class="bar-lbl">Sun<br/>—</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Focus Zone -->
+    <div class="panel" id="panel-focus">
+      <div class="page-header"><div class="page-title">⏰ Focus zone</div><div class="page-sub">Pomodoro timer to keep you in the zone</div></div>
+      <div class="pomo-wrap">
+        <div class="mode-tabs">
+          <button class="mode-tab active" id="mode-focus" onclick="setMode('focus',25)">Focus</button>
+          <button class="mode-tab" id="mode-short" onclick="setMode('short',5)">Short break</button>
+          <button class="mode-tab" id="mode-long" onclick="setMode('long',15)">Long break</button>
+        </div>
+        <div class="pomo-ring-wrap">
+          <svg viewBox="0 0 180 180" style="transform:rotate(-90deg)">
+            <circle cx="90" cy="90" r="78" fill="none" stroke="var(--bg)" stroke-width="12"/>
+            <circle cx="90" cy="90" r="78" fill="none" stroke="var(--accent)" stroke-width="12" stroke-linecap="round" stroke-dasharray="490" id="pomo-arc" stroke-dashoffset="0"/>
+          </svg>
+          <div class="pomo-center-text">
+            <div class="pomo-time" id="pomo-time">25:00</div>
+            <div class="pomo-mode-label" id="pomo-sublabel">Focus session</div>
+          </div>
+        </div>
+        <div class="pomo-btns">
+          <button class="btn btn-ghost btn-sm" onclick="pomoReset()">Reset</button>
+          <button class="btn btn-primary" id="pomo-toggle" onclick="togglePomo()">▶ Start</button>
+          <button class="btn btn-ghost btn-sm" onclick="skipPomo()">Skip →</button>
+        </div>
+        <div class="session-count">Sessions today: <strong id="pomo-count">0</strong></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Focus music</div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <a href="https://www.youtube.com/watch?v=jfKfPfyJRdk" target="_blank" style="font-size:14px;color:var(--accent);text-decoration:none">🎵 Lo-fi hip hop — beats to study/relax to</a>
+          <a href="https://www.youtube.com/watch?v=5qap5aO4i9A" target="_blank" style="font-size:14px;color:var(--accent);text-decoration:none">🎵 Lo-fi girl — relaxing study music</a>
+          <a href="https://www.youtube.com/watch?v=WPni755-Krg" target="_blank" style="font-size:14px;color:var(--accent);text-decoration:none">🎵 Classical music for studying — Mozart</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Smart Notes -->
+    <div class="panel" id="panel-notes">
+      <div class="page-header"><div class="page-title">📝 Smart notes</div><div class="page-sub">Create and organise your study notes by subject</div></div>
+      <div class="add-row">
+        <input type="text" id="note-title-input" placeholder="Note title..." />
+        <select id="note-subject" style="padding:9px 10px;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;background:var(--surface);color:var(--text);outline:none">
+          <option>Maths</option><option>Science</option><option>History</option><option>English</option><option>General</option>
+        </select>
+        <button class="btn btn-primary" onclick="addNote()">Add note</button>
+      </div>
+      <div class="note-grid" id="note-list">
+        <div class="note-card"><h4>Photosynthesis process</h4><p>Light reaction, Calvin cycle, chlorophyll absorption, ATP production...</p><div class="note-foot"><span class="badge badge-green">Science</span><span style="font-size:11px;color:var(--text3)">Today</span></div></div>
+        <div class="note-card"><h4>World War 2 key events</h4><p>1939 invasion of Poland, D-Day June 1944, atomic bomb 1945...</p><div class="note-foot"><span class="badge badge-amber">History</span><span style="font-size:11px;color:var(--text3)">Yesterday</span></div></div>
+        <div class="note-card"><h4>Quadratic equations</h4><p>ax² + bx + c = 0. Discriminant: b²–4ac. Factoring and formula methods...</p><div class="note-foot"><span class="badge badge-blue">Maths</span><span style="font-size:11px;color:var(--text3)">2 days ago</span></div></div>
+        <div class="note-card"><h4>Figurative language</h4><p>Metaphor, simile, alliteration, personification, onomatopoeia with examples...</p><div class="note-foot"><span class="badge badge-purple">English</span><span style="font-size:11px;color:var(--text3)">3 days ago</span></div></div>
+      </div>
+    </div>
+
+    <!-- Flashcards -->
+    <div class="panel" id="panel-flashcards">
+      <div class="page-header"><div class="page-title">🃏 Flashcards</div><div class="page-sub">Flip cards to test your memory</div></div>
+      <div class="fc-counter" id="fc-counter">Card 1 of 5</div>
+      <div class="flashcard" id="flashcard" onclick="flipCard()">
+        <div class="flashcard-inner">
+          <div class="fc-front" id="fc-front">What is the powerhouse of the cell?</div>
+          <div class="fc-back" id="fc-back">The mitochondria — it produces ATP through cellular respiration</div>
+        </div>
+      </div>
+      <div class="fc-hint">Click the card to flip it</div>
+      <div class="fc-nav">
+        <button class="btn btn-ghost btn-sm" onclick="prevCard()">← Previous</button>
+        <button class="btn btn-primary btn-sm" onclick="nextCard()">Next →</button>
+      </div>
+      <div class="card">
+        <div class="card-title">Add a flashcard</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <input type="text" id="fc-q" placeholder="Question..." style="padding:9px 12px;border:1px solid var(--border);border-radius:var(--radius);font-size:14px;background:var(--surface);color:var(--text);outline:none"/>
+          <input type="text" id="fc-a" placeholder="Answer..." style="padding:9px 12px;border:1px solid var(--border);border-radius:var(--radius);font-size:14px;background:var(--surface);color:var(--text);outline:none"/>
+          <button class="btn btn-primary" onclick="addFlashcard()">Add flashcard</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quiz Center -->
+    <div class="panel" id="panel-quiz">
+      <div class="page-header"><div class="page-title">🧠 Quiz center</div><div class="page-sub">Test your knowledge and track your score</div></div>
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+          <div class="card-title" style="margin-bottom:0">Question <span id="q-num">1</span> of <span id="q-total">5</span></div>
+          <span class="badge badge-blue">Score: <span id="q-score">0</span></span>
+        </div>
+        <div class="progress-bar" style="margin-bottom:1.25rem"><div class="progress-fill" id="q-progress" style="width:20%"></div></div>
+        <div class="quiz-question" id="q-question">What is the chemical formula for water?</div>
+        <div class="quiz-options" id="q-options"></div>
+        <div class="quiz-result" id="q-result" style="display:none"></div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-primary" id="q-next-btn" onclick="nextQuestion()" style="display:none">Next question →</button>
+          <button class="btn btn-ghost btn-sm" onclick="resetQuiz()">Restart quiz</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Exam Planner -->
+    <div class="panel" id="panel-exams">
+      <div class="page-header"><div class="page-title">📅 Exam planner</div><div class="page-sub">Track your upcoming exams and count down</div></div>
+      <div class="add-row">
+        <input type="text" id="exam-name" placeholder="Exam name..." />
+        <input type="number" id="exam-days-left" placeholder="Days left" class="sm" min="1"/>
+        <select id="exam-priority" style="padding:9px 10px;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;background:var(--surface);color:var(--text);outline:none">
+          <option>High</option><option>Medium</option><option>Low</option>
+        </select>
+        <button class="btn btn-primary" onclick="addExam()">Add exam</button>
+      </div>
+      <div class="card">
+        <div class="card-title">Upcoming exams</div>
+        <div id="exam-list">
+          <div class="exam-item"><div class="exam-countdown"><div class="num">5</div><div class="lbl">days</div></div><div class="exam-info"><h4>Physics — Chapters 1–5</h4><p>Mechanics, waves, electricity</p></div><div class="exam-priority"><span class="badge badge-blue">High</span></div></div>
+          <div class="exam-item"><div class="exam-countdown" style="background:var(--amber-bg)"><div class="num" style="color:var(--amber)">12</div><div class="lbl">days</div></div><div class="exam-info"><h4>Chemistry — Periodic table</h4><p>Elements, bonding, reactions</p></div><div class="exam-priority"><span class="badge badge-amber">Medium</span></div></div>
+          <div class="exam-item"><div class="exam-countdown" style="background:var(--green-bg)"><div class="num" style="color:var(--green)">21</div><div class="lbl">days</div></div><div class="exam-info"><h4>English literature</h4><p>Macbeth, poetry analysis</p></div><div class="exam-priority"><span class="badge badge-green">Low</span></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Goals -->
+    <div class="panel" id="panel-goals">
+      <div class="page-header"><div class="page-title">🎯 Goals</div><div class="page-sub">Set targets and track your progress</div></div>
+      <div class="add-row">
+        <input type="text" id="goal-input" placeholder="Add a goal..." />
+        <button class="btn btn-primary" onclick="addGoal()">Add goal</button>
+      </div>
+      <div class="card">
+        <div class="card-title">Active goals</div>
+        <div id="goal-list">
+          <div class="goal-item"><div class="goal-header"><span class="goal-name">Finish Algebra textbook</span><span class="goal-pct">75%</span></div><div class="progress-bar"><div class="progress-fill" style="width:75%"></div></div></div>
+          <div class="goal-item"><div class="goal-header"><span class="goal-name">Revise History notes</span><span class="goal-pct">40%</span></div><div class="progress-bar"><div class="progress-fill" style="width:40%;background:var(--amber)"></div></div></div>
+          <div class="goal-item"><div class="goal-header"><span class="goal-name">Read 20 pages per day</span><span class="goal-pct">60%</span></div><div class="progress-bar"><div class="progress-fill" style="width:60%;background:var(--green)"></div></div></div>
+          <div class="goal-item"><div class="goal-header"><span class="goal-name">Complete Physics past papers</span><span class="goal-pct">10%</span></div><div class="progress-bar"><div class="progress-fill" style="width:10%;background:var(--purple)"></div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Progress -->
+    <div class="panel" id="panel-progress">
+      <div class="page-header"><div class="page-title">📈 Progress dashboard</div><div class="page-sub">Hours studied, subjects completed, weekly graphs</div></div>
+      <div class="grid3">
+        <div class="metric"><div class="metric-label">Total hours studied</div><div class="metric-val">42.5</div><div class="metric-sub">this month</div></div>
+        <div class="metric"><div class="metric-label">Topics completed</div><div class="metric-val">18</div><div class="metric-sub">out of 24</div></div>
+        <div class="metric"><div class="metric-label">Goals achieved</div><div class="metric-val" style="color:var(--green)">3</div><div class="metric-sub">this week</div></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Subject progress</div>
+        <div class="stat-row"><span class="label">Mathematics</span><div class="bar"><div class="progress-bar"><div class="progress-fill" style="width:78%"></div></div></div><span class="val">78%</span></div>
+        <div class="stat-row"><span class="label">Biology</span><div class="bar"><div class="progress-bar"><div class="progress-fill" style="width:55%;background:var(--green)"></div></div></div><span class="val" style="color:var(--green)">55%</span></div>
+        <div class="stat-row"><span class="label">History</span><div class="bar"><div class="progress-bar"><div class="progress-fill" style="width:40%;background:var(--amber)"></div></div></div><span class="val" style="color:var(--amber)">40%</span></div>
+        <div class="stat-row"><span class="label">Physics</span><div class="bar"><div class="progress-bar"><div class="progress-fill" style="width:30%;background:var(--purple)"></div></div></div><span class="val" style="color:var(--purple)">30%</span></div>
+        <div class="stat-row"><span class="label">English</span><div class="bar"><div class="progress-bar"><div class="progress-fill" style="width:62%"></div></div></div><span class="val">62%</span></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Weekly study hours</div>
+        <div class="week-chart">
+          <div class="bar-col"><div class="bar-fill" style="height:70px"></div><div class="bar-lbl">Mon<br/>3.5h</div></div>
+          <div class="bar-col"><div class="bar-fill" style="height:50px;background:var(--green)"></div><div class="bar-lbl">Tue<br/>2.5h</div></div>
+          <div class="bar-col"><div class="bar-fill" style="height:90px"></div><div class="bar-lbl">Wed<br/>4.5h</div></div>
+          <div class="bar-col"><div class="bar-fill" style="height:40px;background:var(--amber)"></div><div class="bar-lbl">Thu<br/>2h</div></div>
+          <div class="bar-col"><div class="bar-fill" style="height:20px;background:var(--border-strong)"></div><div class="bar-lbl">Fri<br/>1h</div></div>
+          <div class="bar-col"><div class="bar-fill" style="height:0;background:var(--border)"></div><div class="bar-lbl">Sat<br/>—</div></div>
+          <div class="bar-col"><div class="bar-fill" style="height:0;background:var(--border)"></div><div class="bar-lbl">Sun<br/>—</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Rewards -->
+    <div class="panel" id="panel-rewards">
+      <div class="page-header"><div class="page-title">🏆 Rewards</div><div class="page-sub">Your achievements, XP, levels, and streaks</div></div>
+      <div class="level-banner">
+        <div class="level-icon">⭐</div>
+        <div class="level-info">
+          <h3>Level 4 — Scholar</h3>
+          <p>1,240 / 2,000 XP to Level 5</p>
+          <div class="xp-bar"><div class="xp-fill" style="width:62%"></div></div>
+          <p style="font-size:12px;color:var(--text3)">760 XP to go — keep it up!</p>
+        </div>
+      </div>
+      <div class="card" style="margin-bottom:1rem">
+        <div class="card-title">This week's streak 🔥</div>
+        <div class="streak-dots">
+          <div class="streak-dot done">M</div>
+          <div class="streak-dot done">T</div>
+          <div class="streak-dot done">W</div>
+          <div class="streak-dot today">T</div>
+          <div class="streak-dot empty">F</div>
+          <div class="streak-dot empty">S</div>
+          <div class="streak-dot empty">S</div>
+        </div>
+        <div style="text-align:center;font-size:13px;color:var(--text3)">4 days this week — great progress!</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Badges earned</div>
+        <div class="achievement-item"><div class="ach-icon" style="background:#fef3c7">🔥</div><div class="ach-info"><h4>7-day streak</h4><p>Studied 7 days in a row</p></div><span class="ach-xp">+200 XP</span></div>
+        <div class="achievement-item"><div class="ach-icon" style="background:var(--accent-bg)">⏱️</div><div class="ach-info"><h4>Focus master</h4><p>Completed 10 Pomodoro sessions</p></div><span class="ach-xp">+150 XP</span></div>
+        <div class="achievement-item"><div class="ach-icon" style="background:var(--purple-bg)">📝</div><div class="ach-info"><h4>Note taker</h4><p>Created 5 study notes</p></div><span class="ach-xp">+100 XP</span></div>
+        <div class="achievement-item"><div class="ach-icon" style="background:var(--green-bg)">🎯</div><div class="ach-info"><h4>Goal getter</h4><p>Achieved 3 weekly goals</p></div><span class="ach-xp">+180 XP</span></div>
+        <div class="achievement-item" style="opacity:0.4"><div class="ach-icon" style="background:var(--bg)">🧠</div><div class="ach-info"><h4>Quiz champion</h4><p>Score 100% on 3 quizzes — locked</p></div><span class="ach-xp">+250 XP</span></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+function show(id,el){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('panel-'+id).classList.add('active');
+  el.classList.add('active');
+}
+
+function toggleDone(cb){
+  const lbl=cb.nextElementSibling;
+  lbl.classList.toggle('done',cb.checked);
+}
+
+function addTask(){
+  const inp=document.getElementById('task-input');
+  const sub=document.getElementById('task-subject').value;
+  if(!inp.value.trim())return;
+  const colors={Maths:'badge-blue',Science:'badge-green',History:'badge-amber',English:'badge-purple',General:'badge-blue'};
+  const d=document.createElement('div');d.className='todo-item';
+  d.innerHTML=`<input type="checkbox" onchange="toggleDone(this)"><span class="todo-label">${inp.value.trim()}</span><span class="badge ${colors[sub]||'badge-blue'}" style="margin-left:auto">${sub}</span>`;
+  document.getElementById('task-list').appendChild(d);
+  inp.value='';
+}
+
+function addNote(){
+  const t=document.getElementById('note-title-input').value.trim();
+  const s=document.getElementById('note-subject').value;
+  if(!t)return;
+  const colors={Maths:'badge-blue',Science:'badge-green',History:'badge-amber',English:'badge-purple',General:'badge-blue'};
+  const d=document.createElement('div');d.className='note-card';
+  d.innerHTML=`<h4>${t}</h4><p>Tap to add content to this note...</p><div class="note-foot"><span class="badge ${colors[s]||'badge-blue'}">${s}</span><span style="font-size:11px;color:var(--text3)">Just now</span></div>`;
+  document.getElementById('note-list').prepend(d);
+  document.getElementById('note-title-input').value='';
+}
+
+function addExam(){
+  const n=document.getElementById('exam-name').value.trim();
+  const d=parseInt(document.getElementById('exam-days-left').value)||0;
+  const p=document.getElementById('exam-priority').value;
+  if(!n)return;
+  const cols={High:'badge-blue',Medium:'badge-amber',Low:'badge-green'};
+  const bgs={High:'var(--accent-bg)',Medium:'var(--amber-bg)',Low:'var(--green-bg)'};
+  const cs={High:'var(--accent-text)',Medium:'var(--amber)',Low:'var(--green)'};
+  const el=document.createElement('div');el.className='exam-item';
+  el.innerHTML=`<div class="exam-countdown" style="background:${bgs[p]}"><div class="num" style="color:${cs[p]}">${d}</div><div class="lbl">days</div></div><div class="exam-info"><h4>${n}</h4><p>Revision timetable pending</p></div><div class="exam-priority"><span class="badge ${cols[p]}">${p}</span></div>`;
+  document.getElementById('exam-list').prepend(el);
+  document.getElementById('exam-name').value='';
+  document.getElementById('exam-days-left').value='';
+}
+
+function addGoal(){
+  const inp=document.getElementById('goal-input');
+  if(!inp.value.trim())return;
+  const d=document.createElement('div');d.className='goal-item';
+  d.innerHTML=`<div class="goal-header"><span class="goal-name">${inp.value.trim()}</span><span class="goal-pct">0%</span></div><div class="progress-bar"><div class="progress-fill" style="width:0%"></div></div>`;
+  document.getElementById('goal-list').prepend(d);
+  inp.value='';
+}
+
+// Pomodoro
+let pomoSec=25*60,pomoTotal=25*60,pomoRunning=false,pomoTimer=null,pomoSessions=0;
+function updatePomo(){
+  const m=Math.floor(pomoSec/60),s=pomoSec%60;
+  document.getElementById('pomo-time').textContent=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+  const arc=document.getElementById('pomo-arc');
+  arc.style.strokeDashoffset=490*(pomoSec/pomoTotal);
+}
+function togglePomo(){
+  if(pomoRunning){clearInterval(pomoTimer);pomoRunning=false;document.getElementById('pomo-toggle').textContent='▶ Resume';}
+  else{pomoRunning=true;document.getElementById('pomo-toggle').textContent='⏸ Pause';
+    pomoTimer=setInterval(()=>{
+      if(pomoSec>0){pomoSec--;updatePomo();}
+      else{clearInterval(pomoTimer);pomoRunning=false;pomoSessions++;document.getElementById('pomo-count').textContent=pomoSessions;pomoSec=pomoTotal;updatePomo();document.getElementById('pomo-toggle').textContent='▶ Start';}
+    },1000);
+  }
+}
+function pomoReset(){clearInterval(pomoTimer);pomoRunning=false;pomoSec=pomoTotal;updatePomo();document.getElementById('pomo-toggle').textContent='▶ Start';}
+function skipPomo(){clearInterval(pomoTimer);pomoRunning=false;pomoSec=pomoTotal;updatePomo();document.getElementById('pomo-toggle').textContent='▶ Start';}
+function setMode(mode,mins){
+  pomoReset();pomoTotal=mins*60;pomoSec=pomoTotal;updatePomo();
+  document.querySelectorAll('.mode-tab').forEach(b=>b.classList.remove('active'));
+  document.getElementById('mode-'+mode).classList.add('active');
+  const labels={focus:'Focus session',short:'Short break',long:'Long break'};
+  document.getElementById('pomo-sublabel').textContent=labels[mode];
+}
+updatePomo();
+
+// Flashcards
+const cards=[
+  {q:'What is the powerhouse of the cell?',a:'The mitochondria — it produces ATP through cellular respiration'},
+  {q:'What is the quadratic formula?',a:'x = (−b ± √(b²−4ac)) / 2a'},
+  {q:'When did World War 2 end?',a:'1945 — VE Day (May 8) in Europe, VJ Day (August 15) in Japan'},
+  {q:'What is photosynthesis?',a:'The process by which plants use sunlight, water, and CO₂ to produce glucose and oxygen'},
+  {q:'What is Newton\'s second law?',a:'F = ma — Force equals mass times acceleration'}
+];
+let fcIdx=0,fcFlipped=false;
+function showCard(){
+  document.getElementById('fc-front').textContent=cards[fcIdx].q;
+  document.getElementById('fc-back').textContent=cards[fcIdx].a;
+  document.getElementById('fc-counter').textContent=`Card ${fcIdx+1} of ${cards.length}`;
+  const fc=document.getElementById('flashcard');fc.classList.remove('flipped');fcFlipped=false;
+}
+function flipCard(){const fc=document.getElementById('flashcard');fcFlipped=!fcFlipped;fc.classList.toggle('flipped',fcFlipped);}
+function nextCard(){fcIdx=(fcIdx+1)%cards.length;showCard();}
+function prevCard(){fcIdx=(fcIdx-1+cards.length)%cards.length;showCard();}
+function addFlashcard(){
+  const q=document.getElementById('fc-q').value.trim(),a=document.getElementById('fc-a').value.trim();
+  if(!q||!a)return;cards.push({q,a});
+  document.getElementById('fc-q').value='';document.getElementById('fc-a').value='';
+  fcIdx=cards.length-1;showCard();
+}
+showCard();
+
+// Quiz
+const questions=[
+  {q:'What is the chemical formula for water?',opts:['H₂O','CO₂','NaCl','O₂'],ans:0},
+  {q:'How many sides does a hexagon have?',opts:['5','6','7','8'],ans:1},
+  {q:'Who wrote Romeo and Juliet?',opts:['Charles Dickens','William Shakespeare','Jane Austen','Homer'],ans:1},
+  {q:'What is the speed of light (approx.)?',opts:['300,000 km/s','150,000 km/s','30,000 km/s','3,000 km/s'],ans:0},
+  {q:'Which element has the symbol Fe?',opts:['Fluorine','Francium','Iron','Fermium'],ans:2}
+];
+let qIdx=0,qScore=0,qAnswered=false;
+function renderQuestion(){
+  const q=questions[qIdx];
+  document.getElementById('q-num').textContent=qIdx+1;
+  document.getElementById('q-total').textContent=questions.length;
+  document.getElementById('q-score').textContent=qScore;
+  document.getElementById('q-question').textContent=q.q;
+  document.getElementById('q-progress').style.width=((qIdx+1)/questions.length*100)+'%';
+  const opts=document.getElementById('q-options');
+  opts.innerHTML='';
+  q.opts.forEach((o,i)=>{
+    const b=document.createElement('div');b.className='quiz-opt';b.textContent=o;
+    b.onclick=()=>answer(i);opts.appendChild(b);
+  });
+  document.getElementById('q-result').style.display='none';
+  document.getElementById('q-next-btn').style.display='none';
+  qAnswered=false;
+}
+function answer(i){
+  if(qAnswered)return;qAnswered=true;
+  const q=questions[qIdx];
+  const opts=document.querySelectorAll('.quiz-opt');
+  opts[q.ans].classList.add('correct');
+  const res=document.getElementById('q-result');
+  if(i===q.ans){qScore++;res.className='quiz-result correct';res.textContent='Correct! Well done.';}
+  else{opts[i].classList.add('wrong');res.className='quiz-result wrong';res.textContent='Not quite — the correct answer is highlighted above.';}
+  res.style.display='block';
+  document.getElementById('q-score').textContent=qScore;
+  if(qIdx<questions.length-1)document.getElementById('q-next-btn').style.display='inline-block';
+}
+function nextQuestion(){qIdx++;renderQuestion();}
+function resetQuiz(){qIdx=0;qScore=0;renderQuestion();}
+renderQuestion();
+
+// Dark mode
+function toggleDark(){document.body.classList.toggle('dark',document.getElementById('dark-toggle').checked);}
+</script>
+</body>
+</html>
